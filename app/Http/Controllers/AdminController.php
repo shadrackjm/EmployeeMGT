@@ -36,7 +36,6 @@ class AdminController extends Controller
                 $addAsUser = new User;
                 $addAsUser->name = $request->fname;
                 $addAsUser->email = $request->email;
-                $addAsUser->email = $request->email;
                 $addAsUser->password = Hash::make('123456'); //this will be the default password for all managers
                 $addAsUser->role = 1;
                 $addAsUser->save();

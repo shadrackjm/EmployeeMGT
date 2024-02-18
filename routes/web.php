@@ -54,4 +54,12 @@ Route::group(['middleware' => ['web','checkAdmin']],function(){
 // manager routes here
 Route::group(['middleware' => ['web','checkManager']],function(){
     Route::get('/manager/home',[ManagerController::class,'loadManagerHome']);
+    // manage employees 
+    Route::get('/manage/employees',[ManagerController::class,'getAllEmployees']);
+    Route::get('/get/states/{id}',[ManagerController::class,'getStates'])->name('getStates');
+    Route::get('/get/cities/{id}',[ManagerController::class,'getCities'])->name('getCities');
+    Route::get('/register/employee',[ManagerController::class,'RegisterEmployee'])->name('RegisterEmployee');
+    Route::get('/delete/employee/{id}',[ManagerController::class,'deleteEmployee'])->name('deleteEmployee'); //this is our delete route
+    Route::get('/edit/employee',[ManagerController::class,'editEmployee'])->name('editEmployee');
+
 });

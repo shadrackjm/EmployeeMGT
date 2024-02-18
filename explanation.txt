@@ -7,7 +7,48 @@ _________________________________________________
 Template used - NiceAdmin
 _________________________
 
-Today we are going to see How admin can:
+Today we are going to see How manager can:
 
-- crud operation on employees
+- crud operation on employees (CREATE, READ, UPDATE & DELETE employees)
+
+- before going direct to the task..
+
+we need to add few database models and migrations for:-
+- countries
+- states
+- cities
+
+- I have their seeders also and i'll provide them in my project assets Directory
+
+just follow the link in the description to get all project source codes..
+
+now start by creating models with migrations..
+
+then, i'll show you how to use the seeders to get all data into our database tables..
+
+now create the seeders using the following command
+
+then, we need to copy the data from the seeders to our new created seeders
+
+then, we need to edit our countries migration to have fields similar with those from the seeder
+
+so we have 4 fields:-
+
+before run migration command edit each migration to have same fields as we did for 
+countries table migration
+
+now finish up with the cities table
+
+now migrate your three tables..
+
+then, we have to run the seeding command to seed all data to db..
+
+now seed cities..
+
+now we have all tables with data..
+
+then we are going to continue with crud for our employees..
+
+since we did it in last video i'll just skip the video and show you how to use the 
+three tables we added in employee registration and update/edit..
 
