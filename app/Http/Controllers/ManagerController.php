@@ -23,16 +23,30 @@ class ManagerController extends Controller
     }
 
     public function getAllEmployees(){
-        $user = Auth::user();
-        $logged_manager = Manager::where('user_id',$user->id)->first();
+        $user = Auth::user(); //get the logged in manager
+        $logged_manager = Manager::where('user_id',$user->id)->first(); // this is used to show the name of logged in user 
+        // here we get all employees by joining 4 tables that are related to employee
         $all_employees = Employee::join('users','users.id','=','employees.user_id')
         ->join('countries','countries.id','=','employees.country_id')
         ->join('states','states.id','=','employees.state_id')
         ->join('cities','cities.id','=','employees.city_id')
+        // this last line select the fields you want to return to the page
+        // here in users table i get the email only, from employee i select all data, and in countries i selected name but i renamed it to be country_name by using 'as'
+        // this is mandatory here since countries,states and cities have the similar table field called name
+        // this makes more sense in display view..
         ->get(['users.email','employees.*','countries.name as country_name','states.name as state_name','cities.name as city_name']);  //here specify columns to select from both two tables
         // get all countries
-        $all_countries = Countries::all(); 
+        $all_countries = Countries::all(); //this help out in add new employee form
         return view('manager.manage-employees',compact('all_employees','logged_manager','all_countries'));
+    }
+
+    public function getCountries(){
+        try {
+            $countries = Countries::all();
+            return response()->json(['success' => true, 'data' => $countries]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'msg' => 'No Data Found!']);
+        }
     }
 
     public function GetStates($country_id){
@@ -71,10 +85,8 @@ class ManagerController extends Controller
         if ($validator->fails()) {
             return response()->json(['msg' => $validator->errors()->toArray()]);
         }else{
-            // register manager
+            // register employee
             try {
-                // so here we will do the following changes
-                // here in last video user registration code block was below the managers registration code block
                 $addAsUser = new User;
                 $addAsUser->name = $request->fname;
                 $addAsUser->email = $request->email;
@@ -110,7 +122,7 @@ class ManagerController extends Controller
     public function deleteEmployee($user_id){ 
         try {
             User::where('id',$user_id)->delete();
-            return response()->json(['success' => true, 'msg' => $user_id]);
+            return response()->json(['success' => true, 'msg' => 'Employee Deleted Successfully']);
 
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'msg' => $e->getMessage()]);
@@ -137,18 +149,15 @@ class ManagerController extends Controller
             // perform edit functionality here
             try {
 
-                $country_data = Countries::where('name',$request->country)->first();
-                $state_data = States::where('name',$request->state)->first();
-                $city_data = Cities::where('name',$request->city)->first();
                 Employee::where('user_id',$request->manager_id)->update([
                     'first_name' => $request->fname,
                     'middle_name' => $request->mname,
                     'last_name' => $request->lname,
                     'phone_number' => $request->phone,
                     'job_title' => $request->job_title,
-                    'country_id' => $country_data->id,
-                    'state_id' => $state_data->id,
-                    'city_id' => $city_data->id,
+                    'country_id' => $request->country,
+                    'state_id' => $request->state,
+                    'city_id' => $request->city,
                 ]);
 
                 User::where('id',$request->manager_id)->update([

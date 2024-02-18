@@ -52,3 +52,37 @@ then we are going to continue with crud for our employees..
 since we did it in last video i'll just skip the video and show you how to use the 
 three tables we added in employee registration and update/edit..
 
+- now i'll show you all changes i've made to make employee CRUD be perfect
+so follow along..
+
+first in registration
+
+now to add employee 
+
+yes, that's all about dependent dynamic dropdowns... 
+if you find them confusing check the video link in the description i have a video discussing the issue..
+
+so that's how we register employee..
+
+now you can delete and edit our employee..
+
+on delete there is no difference as for the last video..
+
+now on edit there is a little changes that are of much importance to note.....
+
+so here is what i did..
+
+so that's it for edit feature..
+
+guys if you find anything as a challenges i'll provide my source codes..
+
+check it and if not satisfied .. please consult me please!!.. i'll be available to help out..
+
+so on next video we will see how to add departments, thus we will tweak a litle the today's codes..
+also we will see how to assign employee tasks..
+
+so guys thank you very much for whatching...
+
+see you on my next video
+
+

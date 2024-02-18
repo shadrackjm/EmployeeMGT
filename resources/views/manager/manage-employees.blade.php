@@ -30,7 +30,8 @@
                       <td>{{$item->job_title}}</td>
                       <td>{{$item->email}}</td>
                       <td>{{$item->phone_number}}</td>
-                      <td>{{$item->country_name}}</td>
+                      <td>{{$item->country_name}}</td> 
+                      {{-- if it were name for the three it was confusing and only country name would be displayed here!! --}}
                       <td>{{$item->state_name}}</td>
                       <td>{{$item->city_name}}</td>
                       <td><button class="btn btn-primary btn-sm editBtn" data-id="{{$item->user_id}}" data-fname="{{$item->first_name}}"  data-mname="{{$item->middle_name}}" data-lname="{{$item->last_name}}" data-phone="{{$item->phone_number}}" data-email="{{$item->email}}" data-job="{{$item->job_title}}" data-country="{{$item->country_id}}" data-state="{{$item->state_id}}" data-city="{{$item->city_id}}" data-bs-toggle="modal" data-bs-target="#editModal">edit</button></td>
@@ -84,6 +85,16 @@
           </div>
           <div class="col-md-6">
             <select name="country" id="country_name" class="form-select">
+              {{-- here we displayed the countries in a dropdown also what i add 
+                is a dependent dropdown functionality here..
+                as you've seen on change of country dropdown activate the state dropdown 
+                and i fetched only states found on that specific country
+                and lastly on change of a state call the cities found on that specific state
+                meaning that we will have the following path
+                country > state > city
+
+                now let me show you how i did it in a quick way..
+                --}}
                 <option value="">select country</option>
                 @foreach ($all_countries as $item)
                     <option value="{{$item->id}}">{{$item->name}}</option>
@@ -92,6 +103,7 @@
             <span id="country_error" class="text-danger"></span>
           </div>
           {{-- these two select tags will be filled according to country selected --}}
+          
           <div class="col-md-6">
             <select name="state" id="state_name" class="form-select">
             </select>
@@ -123,7 +135,7 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Edit Manager</h5>
+        <h5 class="modal-title">Edit Employee</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -157,15 +169,19 @@
             <span id="job_title_edit_error" class="text-danger"></span>
           </div>
           <div class="col-md-6">
-            <input type="text" class="form-control" name="country" id="country">
+            <select name="country" id="country_name_edit" class="form-select">
+            </select>
             <span id="country_edit_error" class="text-danger"></span>
           </div>
+          {{-- these two select tags will be filled according to country selected --}}
           <div class="col-md-6">
-            <input type="text" class="form-control" name="state" id="state">
+            <select name="state" id="state_name_edit" class="form-select">
+            </select>
             <span id="state_edit_error" class="text-danger"></span>
           </div>
           <div class="col-md-6">
-            <input type="text" class="form-control" name="city" id="citys">
+            <select name="city" id="city_name_edit" class="form-select">
+            </select>
             <span id="city_edit_error" class="text-danger"></span>
           </div>
         <!-- End No Labels Form -->
@@ -296,10 +312,10 @@
                 });
 
             });
-            // edit car functionality..
+            // edit employee functionality..
             $('.editBtn').on('click',function(){
-                // get all car data that we passed on the edit button
-                var manager_id = $(this).attr('data-id'); //this is our user_id
+                // get all employee data that we passed on the edit button
+                var employee_id = $(this).attr('data-id'); //this is our user_id
                 var fname = $(this).attr('data-fname');
                 var mname = $(this).attr('data-mname');
                 var lname = $(this).attr('data-lname');
@@ -309,18 +325,43 @@
                 var country = $(this).attr('data-country');
                 var state = $(this).attr('data-state');
                 var city = $(this).attr('data-city');
-
+                // here we get all countries ,states and cities then
+                //check if there is a match with the employee country_id
+                $.ajax({
+                    url: '{{ route("getCountries")}}',
+                    type: "GET",
+                    success:function(data){
+                        if (data.success == true) {
+                            var country_data = data.data;
+                            // console.log(country);
+                            $('#country_name_edit').html('');
+                            // here we need to loop on each data that will be returned
+                            $.each(country_data,function(key,value){
+                                // this add all countries to country_name_edit dropdown
+                                $('#country_name_edit').append('<option value="'+value.id+'">'+value.name+'</option>');
+                                if (value.id == country) {
+                                  // get the exact match with our employee country_id
+                                // make it selected by default
+                                    var match = value.id;
+                                    $('#country_name_edit').append('<option value="'+match+'" selected>'+value.name+'</option>');
+                                }
+                            });
+                        }else{
+                            alert(data.msg);
+                        }
+                    }
+                });
+                // after reflecting the country as default and selected in an edit form i also perform a dependent dropdown feature..
+                // onchange of country will trigger cities and states dropdowns ..
                 // then display them in a edit form
                 $('#fname').val(fname);
                 $('#mname').val(mname);
                 $('#lname').val(lname);
                 $('#phone').val(phone);
                 $('#email').val(email);
-                $('#manager_id').val(manager_id);
+                $('#manager_id').val(employee_id);
                 $('#job').val(job_title);
-                $('#country').val(country);
-                $('#state').val(state);
-                $('#citys').val(city);
+               
                 
             });
 
@@ -363,7 +404,7 @@
 
                 // fill the dropdowns accordingly
                 $('#country_name').on('change',function(){
-                        // on change get the id of a country and send it to database to query cities
+                        // on change get the id of a country and send it to database to query states
                         var country_id = $('#country_name').val();
                         console.log(country_id);
                         // create route variable
@@ -375,11 +416,38 @@
                             type: "GET",
                             success:function(data){
                                 if (data.success == true) {
-                                    var cities_data = data.data;
+                                    var cities_data = data.data; //here get all data return from controller
                                     $('#state_name').html('<option >Select State</option>');
                                     // here we need to loop on each data that will be returned
                                     $.each(cities_data,function(key,value){
+                                      // append each data to the state dropdown
                                         $('#state_name').append('<option value="'+value.id+'">'+value.name+'</option>');
+                                    });
+                                }else{
+                                    alert(data.msg);
+                                    // else show an error message
+                                }
+                            }
+                        });
+                    });
+
+                    $('#country_name_edit').on('change',function(){
+                        // on change get the id of a country and send it to database to query cities
+                        var country_id = $('#country_name_edit').val();
+                        console.log(country_id);
+                        // create route variable
+                        var url = '{{ route("getStates","country_id")}}';
+                        url = url.replace('country_id',country_id);
+
+                        $.ajax({
+                            url: url,
+                            type: "GET",
+                            success:function(data){
+                                if (data.success == true) {
+                                    var cities_data = data.data;
+                                    // here we need to loop on each data that will be returned
+                                    $.each(cities_data,function(key,value){
+                                        $('#state_name_edit').append('<option value="'+value.id+'">'+value.name+'</option>');
                                     });
                                 }else{
                                     alert(data.msg);
@@ -402,10 +470,35 @@
                             success:function(data){
                                 if (data.success == true) {
                                     var cities_data = data.data;
-                                    $('#city_name').html('<option value="0">Select State</option>');
+                                    $('#city_name').html('<option value="0">Select City</option>');
                                     // here we need to loop on each data that will be returned
                                     $.each(cities_data,function(key,value){
                                         $('#city_name').append('<option value="'+value.id+'">'+value.name+'</option>');
+                                    });
+                                }else{
+                                    alert(data.msg);
+                                }
+                            }
+                        });
+                    });
+
+                    $('#state_name_edit').on('change',function(){
+                        // on change get the id of a country and send it to database to query cities
+                        var state_id = $('#state_name_edit').val();
+                        // console.log(country_id);
+                        // create route variable
+                        var url = '{{ route("getCities","state_id")}}';
+                        url = url.replace('state_id',state_id);
+
+                        $.ajax({
+                            url: url,
+                            type: "GET",
+                            success:function(data){
+                                if (data.success == true) {
+                                    var cities_data = data.data;
+                                    // here we need to loop on each data that will be returned
+                                    $.each(cities_data,function(key,value){
+                                        $('#city_name_edit').append('<option value="'+value.id+'">'+value.name+'</option>');
                                     });
                                 }else{
                                     alert(data.msg);
