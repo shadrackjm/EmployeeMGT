@@ -1,9 +1,10 @@
 <?php
 
-use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ManagerController;
+use App\Http\Controllers\EmployeeController;
 // make sure you import the classes above
 
 /*
@@ -63,4 +64,10 @@ Route::group(['middleware' => ['web','checkManager']],function(){
     Route::get('/delete/employee/{id}',[ManagerController::class,'deleteEmployee'])->name('deleteEmployee'); //this is our delete route
     Route::get('/edit/employee',[ManagerController::class,'editEmployee'])->name('editEmployee');
 
+});
+
+// employee routes here
+Route::group(['middleware'=> ['web','checkEmployee']],function(){
+    // this is how we apply middlewares on routes based on the role of a user
+    Route::get('/employee/home',[EmployeeController::class,'loadHomePage']);
 });
