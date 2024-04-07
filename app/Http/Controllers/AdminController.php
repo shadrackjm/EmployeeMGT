@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Manager;
 use App\Models\User;
+use App\Models\Manager;
+use App\Models\Department;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -116,5 +118,60 @@ class AdminController extends Controller
             
         }
 
+    }
+
+    public function manageDepartments(){
+        // return the departments here
+        $logged_user =  Auth::user();
+        $all_departments = Department::all();
+        return view('admin.manage-department',compact('all_departments','logged_user'));
+    }
+
+    public function AddDepartment(Request $request){
+        // add validations..
+        $validator = Validator::make($request->all(),[
+            'name' => 'required|string',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['msg' => $validator->errors()->toArray()]);
+        }else{
+            try {
+                $add = new Department;
+                $add->department_name = $request->name;
+                $add->save();
+                return response()->json(['success' => true,'msg' => 'department added successfully']);
+            } catch (\Exception $e) {
+                return response()->json(['success' => false,'msg' => $e->getMessage()]);
+            }
+        }
+    }
+
+       public function deleteDepartment($department_id){ //for good readability use user_id
+        try {
+            Department::where('id',$department_id)->delete();
+            // if success print success msg
+            return response()->json(['success' => true, 'msg' => 'Department Deleted Successfully']);
+
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'msg' => $e->getMessage()]);
+        }
+    }
+    public function editDepartment(Request $request){
+        $validator = Validator::make($request->all(),[
+            'department_name' => 'required|string',
+            'department_id' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['msg' => $validator->errors()->toArray()]);
+        }else{
+            try {
+                $edit = Department::where('id',$request->department_id)->update([
+                    'department_name' => $request->department_name
+                ]);
+                return response()->json(['success' => true,'msg' => 'department updated successfully']);
+            } catch (\Exception $e) {
+                return response()->json(['success' => false,'msg' => $e->getMessage()]);
+            }
+        }
     }
 }

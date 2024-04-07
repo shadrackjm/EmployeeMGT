@@ -19,5 +19,8 @@ class Employee extends Model
         'country_id',
         'state_id',
         'city_id',
+        // add the department id here
+        'department_id'
     ];
 }
+// now paste the data

@@ -50,7 +50,11 @@ Route::group(['middleware' => ['web','checkAdmin']],function(){
     Route::get('/register/manager',[AdminController::class,'RegisterManager'])->name('RegisterManager');
     Route::get('/edit/manager',[AdminController::class,'editManager'])->name('editManager');
     Route::get('delete/manager/{id}',[AdminController::class,'deleteManager'])->name('deleteManager'); //this is our delete route
-});
+    Route::get('/manage-departments',[AdminController::class,'manageDepartments']);
+    Route::get('/add-department',[AdminController::class,'AddDepartment'])->name('AddDepartment');
+    Route::get('/delete/department/{id}',[AdminController::class,'deleteDepartment'])->name('deleteDepartment'); //this is our delete route
+    Route::get('/edit/department',[AdminController::class,'editDepartment'])->name('editDepartment');
+}); 
 
 // manager routes here
 Route::group(['middleware' => ['web','checkManager']],function(){
@@ -63,6 +67,7 @@ Route::group(['middleware' => ['web','checkManager']],function(){
     Route::get('/register/employee',[ManagerController::class,'RegisterEmployee'])->name('RegisterEmployee'); //this is used to register our employee
     Route::get('/delete/employee/{id}',[ManagerController::class,'deleteEmployee'])->name('deleteEmployee'); //this is our delete route
     Route::get('/edit/employee',[ManagerController::class,'editEmployee'])->name('editEmployee');
+    Route::get('/get/department',[ManagerController::class,'getDepartments'])->name('getDepartments');
 
 });
 

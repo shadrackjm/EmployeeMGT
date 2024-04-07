@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cities;
+use App\Models\Department;
 use App\Models\User;
 use App\Models\States;
 use App\Models\Manager;
@@ -30,14 +31,17 @@ class ManagerController extends Controller
         ->join('countries','countries.id','=','employees.country_id')
         ->join('states','states.id','=','employees.state_id')
         ->join('cities','cities.id','=','employees.city_id')
+        ->join('departments','departments.id','=','employees.department_id')
+        // we need to join the department table here also..
         // this last line select the fields you want to return to the page
         // here in users table i get the email only, from employee i select all data, and in countries i selected name but i renamed it to be country_name by using 'as'
         // this is mandatory here since countries,states and cities have the similar table field called name
         // this makes more sense in display view..
-        ->get(['users.email','employees.*','countries.name as country_name','states.name as state_name','cities.name as city_name']);  //here specify columns to select from both two tables
+        ->get(['users.email','employees.*','countries.name as country_name','states.name as state_name','cities.name as city_name','departments.department_name','departments.id as department_id']); //this make sure we get department id  //here specify columns to select from both two tables
         // get all countries
         $all_countries = Countries::all(); //this help out in add new employee form
-        return view('manager.manage-employees',compact('all_employees','logged_manager','all_countries'));
+        $all_departments = Department::all();
+        return view('manager.manage-employees',compact('all_employees','logged_manager','all_countries','all_departments'));
     }
 
     public function getCountries(){
@@ -77,6 +81,7 @@ class ManagerController extends Controller
             'email' => 'required|email',
             'phone' => 'required|numeric',
             'job_title' => 'required|string',
+            'department_id' => 'required|integer',
             'country' => 'required|numeric',
             'state' => 'required|numeric',
             'city' => 'numeric',
@@ -107,6 +112,7 @@ class ManagerController extends Controller
                 $employee->country_id = $request->country;
                 $employee->state_id = $request->state;
                 $employee->city_id = $request->city;
+                $employee->department_id = $request->department_id;
                 $employee->save();
                 // now add the user_id field in the employee table migration & database
     
@@ -142,14 +148,15 @@ class ManagerController extends Controller
             'country' => 'required|string',
             'state' => 'required|string',
             'city' => 'string',
+            'department_id' => 'integer',
         ]);
         if ($validator->fails()) {
             return response()->json(['msg' => $validator->errors()->toArray()]);
         }else{
             // perform edit functionality here
             try {
-
-                Employee::where('user_id',$request->manager_id)->update([
+                // dd($request->department_id);
+                Employee::where('user_id',$request->employee_id)->update([
                     'first_name' => $request->fname,
                     'middle_name' => $request->mname,
                     'last_name' => $request->lname,
@@ -158,13 +165,14 @@ class ManagerController extends Controller
                     'country_id' => $request->country,
                     'state_id' => $request->state,
                     'city_id' => $request->city,
+                    'department_id' => $request->department_id,
                 ]);
 
                 User::where('id',$request->manager_id)->update([
                     'email' => $request->email
                 ]);
 
-                return response()->json(['success' => true, 'msg' => 'manager updated successfully']);
+                return response()->json(['success' => true, 'msg' => ''.$request->employee_id.'']);
 
             } catch (\Exception $e) {
                 return response()->json(['success' => false, 'msg' => $e->getMessage()]);
@@ -173,5 +181,14 @@ class ManagerController extends Controller
             
         }
 
+    }
+
+      public function getDepartments(){
+        try {
+            $department = Department::all();
+            return response()->json(['success' => true, 'data' => $department]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'msg' => 'No Data Found!']);
+        }
     }
 }

@@ -13,6 +13,7 @@
           <th>S/N</th>
           <th>Name</th>
           <th>Job Title</th>
+          <th>Department</th>
           <th>Email</th>
           <th>Phone Number</th>
           <th>Country</th>
@@ -28,13 +29,14 @@
                       <td>{{$loop->iteration}}</td>
                       <td>{{$item->first_name}} {{$item->middle_name}} {{$item->last_name}}</td>
                       <td>{{$item->job_title}}</td>
+                      <td>{{$item->department_name}}</td>
                       <td>{{$item->email}}</td>
                       <td>{{$item->phone_number}}</td>
                       <td>{{$item->country_name}}</td> 
                       {{-- if it were name for the three it was confusing and only country name would be displayed here!! --}}
                       <td>{{$item->state_name}}</td>
                       <td>{{$item->city_name}}</td>
-                      <td><button class="btn btn-primary btn-sm editBtn" data-id="{{$item->user_id}}" data-fname="{{$item->first_name}}"  data-mname="{{$item->middle_name}}" data-lname="{{$item->last_name}}" data-phone="{{$item->phone_number}}" data-email="{{$item->email}}" data-job="{{$item->job_title}}" data-country="{{$item->country_id}}" data-state="{{$item->state_id}}" data-city="{{$item->city_id}}" data-bs-toggle="modal" data-bs-target="#editModal">edit</button></td>
+                      <td><button class="btn btn-primary btn-sm editBtn" data-id="{{$item->user_id}}" data-fname="{{$item->first_name}}"  data-mname="{{$item->middle_name}}" data-lname="{{$item->last_name}}" data-phone="{{$item->phone_number}}" data-email="{{$item->email}}" data-job="{{$item->job_title}}" data-country="{{$item->country_id}}" data-state="{{$item->state_id}}" data-city="{{$item->city_id}}" data-department_name="{{$item->department_name}}" data-department_id="{{$item->department_id}}" data-bs-toggle="modal" data-bs-target="#editModal">edit</button></td>
                       <td><button class="btn btn-danger btn-sm deleteBtn" data-id="{{$item->user_id}}" data-name="{{$item->name}}" data-bs-toggle="modal" data-bs-target="#deleteModal">delete</button></td>
                   </tr>
               @endforeach
@@ -78,6 +80,14 @@
           <div class="col-md-6">
             <input type="text" class="form-control" placeholder="Job Title" name="job_title">
             <span id="job_title_error" class="text-danger"></span>
+          </div>
+          <div class="col-md-6">
+            <select name="department_id" id="department_id" class="form-select">
+                <option value="">Select Department</option>
+                @foreach ($all_departments as $item)
+                  <option value="{{$item->id}}">{{$item->department_name}}</option>
+                @endforeach
+            </select>
           </div>
           <div class="col-md-6">
             <input type="text" class="form-control" placeholder="Phone Number" name="phone">
@@ -142,7 +152,8 @@
          <!-- No Labels Form -->
          <form class="row g-3" id="editEmployeeForm">
           {{-- this is a hidden manager_id --}}
-          <input type="hidden" name="manager_id" id="manager_id"> 
+          <input type="hidden" name="employee_id" id="employee_id"> 
+           {{--here was a challenge i changed the attributes to employee_id but in jquery i didn't so it was sending request to server without employee_id  --}}
           {{-- this input will be hidden, but used to carry the managers user_id --}}
           <div class="col-md-12">
             <input type="text" class="form-control" name="fname" id="fname">
@@ -172,6 +183,11 @@
             <select name="country" id="country_name_edit" class="form-select">
             </select>
             <span id="country_edit_error" class="text-danger"></span>
+          </div>
+          <div class="col-md-6">
+            <select name="department_id" id="department_name_edit" class="form-select">
+            </select>
+            <span id="department_id_edit_error" class="text-danger"></span>
           </div>
           {{-- these two select tags will be filled according to country selected --}}
           <div class="col-md-6">
@@ -316,6 +332,8 @@
             $('.editBtn').on('click',function(){
                 // get all employee data that we passed on the edit button
                 var employee_id = $(this).attr('data-id'); //this is our user_id
+                var department_id = $(this).attr('data-department_id');
+                var department_name = $(this).attr('data-department_name');
                 var fname = $(this).attr('data-fname');
                 var mname = $(this).attr('data-mname');
                 var lname = $(this).attr('data-lname');
@@ -351,6 +369,30 @@
                         }
                     }
                 });
+
+                // get the departments here
+                 $.ajax({
+                    url: '{{ route("getDepartments")}}',
+                    type: "GET",
+                    success:function(data){
+                        if (data.success == true) {
+                            var department_data = data.data;
+                            $('#department_name_edit').html('');
+                            // here we need to loop on each data that will be returned
+                            $.each(department_data,function(key,value){
+                                // this add all department_data to department_data_edit dropdown
+                                $('#department_name_edit').append('<option value="'+value.id+'">'+value.department_name+'</option>');
+                                if (value.id == department_id) { //also make sure here we check the department_id
+                                // make it selected by default
+                                    var match = value.id;
+                                    $('#department_name_edit').append('<option value="'+match+'" selected>'+value.department_name+'</option>');
+                                }
+                            });
+                        }else{
+                            alert(data.msg);
+                        }
+                    }
+                });
                 // after reflecting the country as default and selected in an edit form i also perform a dependent dropdown feature..
                 // onchange of country will trigger cities and states dropdowns ..
                 // then display them in a edit form
@@ -359,8 +401,9 @@
                 $('#lname').val(lname);
                 $('#phone').val(phone);
                 $('#email').val(email);
-                $('#manager_id').val(employee_id);
+                $('#employee_id').val(employee_id);
                 $('#job').val(job_title);
+                // also add this
                
                 
             });
