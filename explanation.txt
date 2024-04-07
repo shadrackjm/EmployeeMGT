@@ -9,4 +9,66 @@ _________________________
 
 Today we are going to see how:
 
+- add department to our Employees
 
+since now our Employees are successfully added, they should also be categorized by 
+their departments..
+
+so to add department to Employees we need to create a department table..
+
+so let's create a model and the migration..
+
+but now we need to add the department to each employee... so since the employee 
+table already exist we need to modify the migration and re migrate it again..
+
+now create it again..
+
+now let's try to migrate the two tables..
+
+great! now we have the department table.. so let the admin add the departments..
+
+so we will perform all the neccessary crud on departments..
+
+as follows...
+
+now let's try to add our first department..
+
+sorry for that i was editing the wrong file..
+
+now let's go to edit and delete departments..
+
+now edit department..
+
+now all CRUD on department is clear..
+
+now we need to make every employee registered will have their departments..
+
+now let's edit our employee Management module..
+
+now let's add the department in all employee cruds..
+
+now add department in edit also..
+
+so from the error that we are getting i realized that i made a mistake when
+creating the employee to department relationship in migration file..
+
+thus we need to re migrate the table ..
+
+now test it again...
+
+now finish with when employee log in to see their department in their dashboard..
+
+so that's it friends..
+
+see you on the next video..
+
+thanks for whatching..
+
+on any issue please leave your comment or even reach me out on WhatsApp..
+
+so don't forget to like the video and share it...
+
+
+lastly subscribe to my channel..
+
+....
